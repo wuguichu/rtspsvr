@@ -6,38 +6,25 @@
 
 #include "logger.h"
 #include "threadpool.h"
+#include "ioscheduler.h"
 
 using namespace rtspsvr;
 
 Logger m_log(Logger::LogInfo);
 
-void func(void *arg)
+void stdinSelect(int selectType, void *arg)
 {
-	char *p = static_cast<char *>(arg);
-	LOG_INFO_S(m_log) << "func running " << p << "\n";
+	LOG_ERROR_S(m_log) << "access run\n";
 }
 
 int main()
 {
 	LOG_ERROR_S(m_log) << "func running\n";
-	LOG_ERROR(m_log, "func running\n");
 
-	ThreadPool p;
-	int i = 0;
-	char buf[32] = {"hello world"};
+	IoScheduler scheduler;
 
-	while (1)
-	{
-		i++;
-		//调整线程之间cpu调度,可以去掉
-		//this_thread::sleep_for(chrono::seconds(1));
-		//auto task = bind(func);
-		//std::function<void()> f = func;
-		//auto task = std::bind(func, static_cast<void *>(&i));
-		p.addTaskAndRun(func, buf);
-		if (i > 15)
-			break;
-	}
+	scheduler.registerIoCallBack(0, IoScheduler::SELECT_READ, stdinSelect, nullptr);
+	scheduler.run();
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 

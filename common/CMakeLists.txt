@@ -8,6 +8,11 @@ include_directories(include)
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 #Compile to static library
 add_library(common STATIC ${SRC_CXX} ${INCLUDE_CXX} ${INC_CXX})
+if(WIN32)
+target_link_libraries(common ws2_32.lib)
+else(WIN32)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+endif(WIN32)
 install(TARGETS common
 		LIBRARY DESTINATION lib
         	ARCHIVE DESTINATION lib
