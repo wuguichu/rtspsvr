@@ -1,15 +1,11 @@
-#include "platformcommon.h"
-#if defined(_WIN32) || defined(WIN32)
-#include <WinSock2.h>
-#include <ws2tcpip.h>
-#include <windows.h>
 #include <errno.h>
-#endif
+#include "platformcommon.h"
 
 namespace rtspsvr
 {
 int initializeSock()
 {
+#if defined(_WIN32) || defined(WIN32)
     static bool bIsInit = false;
     if (!bIsInit)
     {
@@ -25,6 +21,7 @@ int initializeSock()
         }
         bIsInit = true;
     }
+#endif
     return true;
 }
 

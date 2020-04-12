@@ -61,7 +61,7 @@ bool TcpSvr::listenCallBack(int selectType)
     else if (selectType & IoScheduler::SELECT_READ)
     {
         struct sockaddr_in addr = {0};
-        int addrlen = sizeof(struct sockaddr_in);
+        socklen_t addrlen = sizeof(struct sockaddr_in);
         int connfd = accept(_sock, (struct sockaddr *)&addr, &addrlen);
         if (connfd < 0)
         {

@@ -8,7 +8,7 @@ ThreadPool::ThreadPool(int threadNum)
 {
     for (size_t i = 0; i < threadNum; i++)
     {
-        _threads.push_back(std::thread(&threadTask, this));
+        _threads.push_back(std::thread(&ThreadPool::threadTask, this));
     }
 }
 
