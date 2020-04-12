@@ -54,6 +54,7 @@ void IoScheduler::run()
     struct timeval timeout = {0};
     int ret = 0;
     int selectType = 0;
+    std::vector<IoCallBackData *> selectOk;
 
     while (true)
     {
@@ -89,11 +90,23 @@ void IoScheduler::run()
 
             if (selectType != 0)
             {
-                IoCallBackData *arg = new IoCallBackData(it->second);
-                _threadPool.addTaskAndRun(runIoCallBackPool, arg);
-                registerIoCallBack(it->first, 0, nullptr, nullptr);
+                IoCallBackData *pnew = new IoCallBackData;
+                pnew->pthis = this;
+                pnew->sock = it->second.sock;
+                pnew->rowSelectType = it->second.rowSelectType;
+                pnew->acceptSelectType = selectType;
+                pnew->cb = it->second.cb;
+                pnew->arg = it->second.arg;
+                selectOk.push_back(pnew);
             }
         }
+
+        for (auto it : selectOk)
+        {
+            registerIoCallBack(it->sock, 0, nullptr, nullptr);
+            _threadPool.addTaskAndRun(runIoCallBackPool, it);
+        }
+        selectOk.clear();
     }
 }
 
@@ -105,8 +118,9 @@ void IoScheduler::runIoCallBackPool(void *arg)
 
 void IoScheduler::runIoCallBack(IoCallBackData *data)
 {
-    data->cb(data->acceptSelectType, data->arg);
-    registerIoCallBack(data->sock, data->rowSelectType, data->cb, data->arg);
+    bool ret = data->cb(data->acceptSelectType, data->arg);
+    if (ret == true)
+        registerIoCallBack(data->sock, data->rowSelectType, data->cb, data->arg);
     delete (data);
 }
 } // namespace rtspsvr

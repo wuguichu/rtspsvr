@@ -13,4 +13,5 @@ endif()
 set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install)
 
 add_subdirectory(common)
+add_subdirectory(rtspsvr)
 add_subdirectory(test)

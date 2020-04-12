@@ -14,9 +14,9 @@ class IoScheduler
 public:
     enum SelectType
     {
-        SELECT_READ = 1 < 0,
-        SELECT_WRITE = 1 < 1,
-        SELECT_EXCEPTION = 1 < 2,
+        SELECT_READ = 1 << 0,
+        SELECT_WRITE = 1 << 1,
+        SELECT_EXCEPTION = 1 << 2,
     };
 
 public:
@@ -24,7 +24,8 @@ public:
     ~IoScheduler();
 
     //selectType is the OR operator combination of SelectType,If it is equal to 0, it will remove the monitoring socket
-    using pIoEventCallBack = void (*)(int selectType, void *arg);
+    //If it returns true, continue to listen
+    using pIoEventCallBack = bool (*)(int selectType, void *arg);
     void registerIoCallBack(int sock, int selectType, pIoEventCallBack cb, void *arg);
     void run(); //This will block the thread
 
