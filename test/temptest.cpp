@@ -7,24 +7,25 @@
 #include "logger.h"
 #include "threadpool.h"
 #include "ioscheduler.h"
+#include "tcpsvr.h"
 
 using namespace rtspsvr;
 
-Logger m_log(Logger::LogInfo);
+Logger m_log(Logger::LogDebug);
 
-void stdinSelect(int selectType, void *arg)
-{
-	LOG_ERROR_S(m_log) << "access run\n";
-}
+/* 
+rtsp://127.0.0.1:554/test.h264
+rtsp://192.168.117.1/test.aac
+<filename>
+*/
 
 int main()
 {
-	LOG_ERROR_S(m_log) << "func running\n";
+	LOG_INFO_S(m_log) << "func running\n";
 
-	IoScheduler scheduler;
-
-	scheduler.registerIoCallBack(0, IoScheduler::SELECT_READ, stdinSelect, nullptr);
-	scheduler.run();
+	IoScheduler ioScheduler;
+	TcpSvr tcpsvr(554, m_log, ioScheduler);
+	ioScheduler.run();
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
