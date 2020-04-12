@@ -5,34 +5,28 @@
 #include <stdlib.h>
 
 #include "logger.h"
+#include "threadpool.h"
+#include "ioscheduler.h"
 
 using namespace rtspsvr;
 
+Logger m_log(Logger::LogInfo);
+
+void stdinSelect(int selectType, void *arg)
+{
+	LOG_ERROR_S(m_log) << "access run\n";
+}
+
 int main()
 {
-	int i = 0;
-	double d = 0.1;
-	Logger log(Logger::LogInfo, "./log");
-	int *p = &i;
+	LOG_ERROR_S(m_log) << "func running\n";
 
-	while (true)
-	{
-		LOG_DEBUG(log, "debug hello world!\n");
-		LOG_DEBUG(log, "debug %d\n", i);
+	IoScheduler scheduler;
 
-		LOG_WARN(log, "wran hello world!\n");
-		LOG_WARN(log, "wran %d\n", i);
+	scheduler.registerIoCallBack(0, IoScheduler::SELECT_READ, stdinSelect, nullptr);
+	scheduler.run();
 
-		LOG_DEBUG_S(log) << "DEBUG hello world"
-						 << " " << i << " " << d + i << "\n";
-		LOG_ERROR_S(log) << "ERROR hello world"
-						 << " " << i << " " << d + i << "\n";
-		LOG_ERROR_S(log) << "&i: " << p << "\n";
+	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
-		if (i++ > 1000)
-			break;
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-	}
 	return 0;
 }
