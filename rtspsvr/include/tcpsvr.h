@@ -11,6 +11,7 @@ public:
     TcpSvr(int port, Logger &log, IoScheduler &scheduler);
     virtual ~TcpSvr();
 
+protected:
     virtual void handNewConnect(int sockfd) {}
 
 private:

@@ -8,6 +8,7 @@
 #include "threadpool.h"
 #include "ioscheduler.h"
 #include "tcpsvr.h"
+#include "rtspsvr.h"
 
 using namespace rtspsvr;
 
@@ -24,7 +25,7 @@ int main()
 	LOG_INFO_S(m_log) << "func running\n";
 
 	IoScheduler ioScheduler;
-	TcpSvr tcpsvr(554, m_log, ioScheduler);
+	RtspSvr rtspsvr(554, m_log, ioScheduler);
 	ioScheduler.run();
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
