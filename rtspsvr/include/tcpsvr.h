@@ -5,22 +5,21 @@
 
 namespace rtspsvr
 {
-class TcpSvr
-{
-public:
-    TcpSvr(int port, Logger &log, IoScheduler &scheduler);
-    virtual ~TcpSvr();
+    class TcpSvr
+    {
+    public:
+        TcpSvr(int port, IoScheduler &scheduler);
+        virtual ~TcpSvr();
 
-protected:
-    virtual void handNewConnect(int sockfd) {}
+    protected:
+        virtual void handNewConnect(int sockfd) {}
 
-private:
-    static bool listenCallBack(int selectType, void *arg);
-    bool listenCallBack(int selectType);
+    private:
+        static bool listenCallBack(int selectType, void *arg);
+        bool listenCallBack(int selectType);
 
-    Logger &_log;
-    IoScheduler &_scheduler;
-    int _sock;
-};
+        IoScheduler &_scheduler;
+        int _sock;
+    };
 
 } // namespace rtspsvr

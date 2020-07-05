@@ -5,30 +5,37 @@
 #include <stdlib.h>
 
 #include "logger.h"
-#include "threadpool.h"
-#include "ioscheduler.h"
-#include "tcpsvr.h"
-#include "rtspsvr.h"
 
 using namespace rtspsvr;
 
-Logger m_log(Logger::LogDebug);
-
-/* 
-rtsp://127.0.0.1:554/test.h264
-rtsp://192.168.117.1/test.aac
-<filename>
-*/
+#undef LOG_LEVEL
+#define LOG_LEVEL rtspsvr::Logger::LogInfo
 
 int main()
 {
-	LOG_INFO_S(m_log) << "func running\n";
+	int i = 0;
+	double d = 0.1;
+	Logger::getInstance()->setSaveDir("./log");
+	int *p = &i;
 
-	IoScheduler ioScheduler;
-	RtspSvr rtspsvr(554, m_log, ioScheduler);
-	ioScheduler.run();
+	while (true)
+	{
+		LOG_DEBUG("debug hello world!\n");
+		LOG_DEBUG("debug %d\n", i);
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+		LOG_WARN("wran hello world!\n");
+		LOG_WARN("wran %d\n", i);
 
+		LOG_DEBUG_S << "DEBUG hello world"
+					<< " " << i << " " << d + i << "\n";
+		LOG_ERROR_S << "ERROR hello world"
+					<< " " << i << " " << d + i << "\n";
+		LOG_ERROR_S << "&i: " << p << "\n";
+
+		if (i++ > 15)
+			break;
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	}
 	return 0;
 }

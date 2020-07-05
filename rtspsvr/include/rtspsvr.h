@@ -6,18 +6,17 @@
 
 namespace rtspsvr
 {
-class RtspSvr : public TcpSvr
-{
-public:
-    RtspSvr(int port, Logger &log, IoScheduler &scheduler);
-    ~RtspSvr();
+    class RtspSvr : public TcpSvr
+    {
+    public:
+        RtspSvr(int port, IoScheduler &scheduler);
+        ~RtspSvr();
 
-protected:
-    virtual void handNewConnect(int sockfd);
+    protected:
+        virtual void handNewConnect(int sockfd);
 
-private:
-    Logger &_log;
-    IoScheduler &_scheduler;
-};
+    private:
+        IoScheduler &_scheduler;
+    };
 
 } // namespace rtspsvr

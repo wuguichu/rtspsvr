@@ -10,7 +10,7 @@ const int rtspSendLen = 1024;
 class RtspConnect
 {
 public:
-    RtspConnect(int sock, Logger &log, IoScheduler &scheduler);
+    RtspConnect(int sock, IoScheduler &scheduler);
     ~RtspConnect();
 
 private:
@@ -24,7 +24,6 @@ private:
     bool sendResponse();
 
     int _sock;
-    Logger &_log;
     IoScheduler &_scheduler;
     unsigned _cseq;
     char _sendbuf[rtspSendLen];
