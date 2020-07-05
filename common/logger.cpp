@@ -15,6 +15,7 @@
 namespace rtspsvr
 {
 	Logger *Logger::m_pLogger = nullptr;
+	std::mutex Logger::m_InsMutex;
 
 	const char LogLevelString[][16] = {
 		"debug",
@@ -27,7 +28,7 @@ namespace rtspsvr
 	{
 		if (nullptr == m_pLogger)
 		{
-			// std::unique_lock<std::mutex> lock(m_InsMutex);
+			std::unique_lock<std::mutex> lock(m_InsMutex);
 			if (nullptr == m_pLogger)
 			{
 				m_pLogger = new Logger();
