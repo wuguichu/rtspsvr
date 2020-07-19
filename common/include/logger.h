@@ -44,7 +44,7 @@ namespace rtspsvr
 
 		void writeThread();
 
-		static Logger *m_pLogger;
+		static Logger *volatile m_pLogger;
 		static std::mutex m_InsMutex;
 		char m_szFiledir[256];
 		std::ofstream m_ofs;

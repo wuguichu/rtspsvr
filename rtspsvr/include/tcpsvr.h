@@ -18,8 +18,8 @@ namespace rtspsvr
         static bool listenCallBack(int selectType, void *arg);
         bool listenCallBack(int selectType);
 
-        IoScheduler &_scheduler;
-        int _sock;
+        IoScheduler &m_scheduler;
+        int m_sock;
     };
 
 } // namespace rtspsvr

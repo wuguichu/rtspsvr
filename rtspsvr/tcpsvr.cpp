@@ -7,41 +7,41 @@ namespace rtspsvr
     const int sock_linsten_count = 20;
 
     TcpSvr::TcpSvr(int port, IoScheduler &scheduler)
-        : _scheduler(scheduler)
+        : m_scheduler(scheduler)
     {
         if (initializeSock() != true)
         {
             RTSP_ERROR_S << "initializeSock error,errno: " << getErrno() << "\n";
             return;
         }
-        _sock = socket(AF_INET, SOCK_STREAM, 0);
-        if (_sock < 0)
+        m_sock = socket(AF_INET, SOCK_STREAM, 0);
+        if (m_sock < 0)
         {
             RTSP_ERROR_S << "unable to create stream socket,errno: " << getErrno() << "\n";
             return;
         }
         int optval = 1;
-        setsockopt(_sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&optval, sizeof(optval));
+        setsockopt(m_sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&optval, sizeof(optval));
         struct sockaddr_in addr = {0};
         addr.sin_family = AF_INET;
         addr.sin_port = htons(port);
         addr.sin_addr.s_addr = INADDR_ANY;
-        if (bind(_sock, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+        if (bind(m_sock, (struct sockaddr *)&addr, sizeof(addr)) < 0)
         {
-            closesocket(_sock);
+            closesocket(m_sock);
             RTSP_ERROR_S << "bind socket error,errno: " << getErrno() << "\n";
             return;
         }
-        listen(_sock, sock_linsten_count);
-        RTSP_DEBUG_S << "success to create stream socket: " << _sock << "\n";
+        listen(m_sock, sock_linsten_count);
+        RTSP_DEBUG_S << "success to create stream socket: " << m_sock << "\n";
 
-        _scheduler.registerIoCallBack(_sock, IoScheduler::SELECT_READ | IoScheduler::SELECT_EXCEPTION, listenCallBack, this);
+        m_scheduler.registerIoCallBack(m_sock, IoScheduler::SELECT_READ | IoScheduler::SELECT_EXCEPTION, listenCallBack, this);
     }
 
     TcpSvr::~TcpSvr()
     {
-        if (_sock)
-            closesocket(_sock);
+        if (m_sock)
+            closesocket(m_sock);
     }
 
     bool TcpSvr::listenCallBack(int selectType, void *arg)
@@ -54,15 +54,15 @@ namespace rtspsvr
     {
         if (selectType & IoScheduler::SELECT_EXCEPTION)
         {
-            closesocket(_sock);
-            RTSP_ERROR_S << "listen socket " << _sock << " error,errno: " << getErrno() << "\n";
+            RTSP_ERROR_S << "listen socket " << m_sock << " error,errno: " << getErrno() << "\n";
+            closesocket(m_sock);
             return false;
         }
         else if (selectType & IoScheduler::SELECT_READ)
         {
             struct sockaddr_in addr = {0};
             socklen_t addrlen = sizeof(struct sockaddr_in);
-            int connfd = accept(_sock, (struct sockaddr *)&addr, &addrlen);
+            int connfd = accept(m_sock, (struct sockaddr *)&addr, &addrlen);
             if (connfd < 0)
             {
                 RTSP_ERROR_S << "accept socket error,errno: " << getErrno() << "\n";

@@ -14,7 +14,7 @@
 
 namespace rtspsvr
 {
-	Logger *Logger::m_pLogger = nullptr;
+	Logger *volatile Logger::m_pLogger = nullptr;
 	std::mutex Logger::m_InsMutex;
 
 	const char LogLevelString[][16] = {

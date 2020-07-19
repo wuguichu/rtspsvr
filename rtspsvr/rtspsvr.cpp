@@ -5,7 +5,7 @@
 namespace rtspsvr
 {
     RtspSvr::RtspSvr(int port, IoScheduler &scheduler)
-        : _scheduler(scheduler), TcpSvr(port, scheduler)
+        : m_scheduler(scheduler), TcpSvr(port, scheduler)
     {
     }
 
@@ -15,10 +15,13 @@ namespace rtspsvr
 
     void RtspSvr::handNewConnect(int sockfd)
     {
-        RtspConnect *pCon = new RtspConnect(sockfd, _scheduler);
+        RtspConnect *pCon = new RtspConnect(sockfd, m_scheduler);
         if (pCon == nullptr)
         {
             RTSP_ERROR_S << "new RtspConnect failed\n";
+            close(sockfd);
+            return;
         }
+        m_map.insert(std::make_pair(sockfd, pCon));
     }
 } // namespace rtspsvr
