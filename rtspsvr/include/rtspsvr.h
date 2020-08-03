@@ -4,6 +4,7 @@
 #include "tcpsvr.h"
 #include "logger.h"
 #include "ioscheduler.h"
+#include "rtspconnect.h"
 
 namespace rtspsvr
 {

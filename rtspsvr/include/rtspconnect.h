@@ -14,18 +14,18 @@ namespace rtspsvr
         ~RtspConnect();
 
     private:
-        static bool handRtspConnectSock(int selectType, void *arg);
-        bool handRtspConnectSock(int selectType);
-        bool handRtspRequest(char *buf);
+        static bool handleRtspConnectSock(int selectType, void *arg);
+        bool handleRtspConnectSock(int selectType);
+        bool handleRtspRequest(char *buf);
 
         bool handleMethodOptions();
         bool handleMethodDescribe(char *buf);
         bool handleMethodSetup(char *buf);
         bool sendResponse();
 
-        int _sock;
-        IoScheduler &_scheduler;
-        unsigned _cseq;
-        char _sendbuf[rtspSendLen];
+        int m_sock;
+        IoScheduler &m_scheduler;
+        unsigned m_cseq;
+        char m_sendbuf[rtspSendLen];
     };
 } // namespace rtspsvr

@@ -19,7 +19,7 @@ namespace rtspsvr
         if (pCon == nullptr)
         {
             RTSP_ERROR_S << "new RtspConnect failed\n";
-            close(sockfd);
+            closesocket(sockfd);
             return;
         }
         m_map.insert(std::make_pair(sockfd, pCon));

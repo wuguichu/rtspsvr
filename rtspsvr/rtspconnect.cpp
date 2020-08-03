@@ -5,28 +5,28 @@
 namespace rtspsvr
 {
     RtspConnect::RtspConnect(int sock, IoScheduler &scheduler)
-        : _sock(sock), _scheduler(scheduler), _cseq(0)
+        : m_sock(sock), m_scheduler(scheduler), m_cseq(0)
     {
-        _sendbuf[0] = '\0';
-        _scheduler.registerIoCallBack(_sock, IoScheduler::SELECT_EXCEPTION | IoScheduler::SELECT_READ, handRtspConnectSock, this);
+        m_sendbuf[0] = '\0';
+        m_scheduler.registerIoCallBack(m_sock, IoScheduler::SELECT_EXCEPTION | IoScheduler::SELECT_READ, handleRtspConnectSock, this);
     }
 
     RtspConnect::~RtspConnect()
     {
-        closesocket(_sock);
+        closesocket(m_sock);
     }
 
-    bool RtspConnect::handRtspConnectSock(int selectType, void *arg)
+    bool RtspConnect::handleRtspConnectSock(int selectType, void *arg)
     {
         RtspConnect *pthis = static_cast<RtspConnect *>(arg);
-        return pthis->handRtspConnectSock(selectType);
+        return pthis->handleRtspConnectSock(selectType);
     }
 
-    bool RtspConnect::handRtspConnectSock(int selectType)
+    bool RtspConnect::handleRtspConnectSock(int selectType)
     {
         if (selectType & IoScheduler::SELECT_EXCEPTION)
         {
-            RTSP_ERROR_S << "listen socket " << _sock << " error,errno: " << getErrno() << "\n";
+            RTSP_ERROR_S << "listen socket " << m_sock << " error,errno: " << getErrno() << "\n";
         }
         else if (selectType & IoScheduler::SELECT_READ)
         {
@@ -34,24 +34,25 @@ namespace rtspsvr
             socklen_t len = sizeof(struct sockaddr_in);
             char buf[1024] = {0};
             int readlen = 0;
-            readlen = recvfrom(_sock, buf, sizeof(buf), 0, (struct sockaddr *)&addr, &len);
+            readlen = recvfrom(m_sock, buf, sizeof(buf), 0, (struct sockaddr *)&addr, &len);
             if (readlen > 0)
             {
-                RTSP_DEBUG_S << "recvfrom " << _sock << " read len: " << readlen << "\n";
+                RTSP_DEBUG_S << "recvfrom " << m_sock << " read len: " << readlen << "\n";
                 RTSP_DEBUG_S << "buf:\n"
                              << buf << "\n";
-                if (handRtspRequest(buf) == true)
+                if (handleRtspRequest(buf) == true)
                     return true;
             }
-            //else if (readlen == 0)
-            //RTSP_DEBUG_S << "one connect is close, socket: " << _sock << "\n";
-            //else if (readlen < 0)
-            //RTSP_ERROR_S << "listen socket " << _sock << " read len: " << readlen << "\n";
+            else if (readlen == 0)
+                RTSP_INFO_S << "one connect is close, socket: " << m_sock << "\n";
+            else if (readlen < 0)
+                RTSP_ERROR_S << "listen socket " << m_sock << " read len: " << readlen << ""
+                             << "\n";
         }
         return false;
     }
 
-    bool RtspConnect::handRtspRequest(char *buf)
+    bool RtspConnect::handleRtspRequest(char *buf)
     {
         char method[32] = {0};
         char *pCseq = nullptr;
@@ -63,7 +64,7 @@ namespace rtspsvr
             return false;
         if ((pCseq = strstr(buf, "CSeq: ")) == nullptr)
             return false;
-        if (sscanf(pCseq, "CSeq: %u", &_cseq) != 1)
+        if (sscanf(pCseq, "CSeq: %u", &m_cseq) != 1)
             return false;
 
         if (!strcmp(method, "OPTIONS"))
@@ -78,12 +79,12 @@ namespace rtspsvr
 
     bool RtspConnect::handleMethodOptions()
     {
-        snprintf(_sendbuf, sizeof(_sendbuf) - 1,
+        snprintf(m_sendbuf, sizeof(m_sendbuf) - 1,
                  "RTSP/1.0 200 OK\r\n"
                  "CSeq: %u\r\n"
                  "Public: OPTIONS, DESCRIBE, SETUP, TEARDOWN, PLAY\r\n"
                  "\r\n",
-                 _cseq);
+                 m_cseq);
         return sendResponse();
     }
 
@@ -131,7 +132,7 @@ namespace rtspsvr
 
     bool RtspConnect::sendResponse()
     {
-        if (send(_sock, _sendbuf, strlen(_sendbuf) + 1, 0) <= 0)
+        if (send(m_sock, m_sendbuf, strlen(m_sendbuf) + 1, 0) <= 0)
             return false;
         return true;
     }
